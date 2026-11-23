@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>וואטסאפ פון</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  try {
+    var t = localStorage.getItem('yemot_theme');
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+<style>
+  :root {
+    --bg-app: #efeae2;
+    --bg-sidebar: #ffffff;
+    --bg-header: #008069;
+    --text-header: #ffffff;
+    --bg-bubble-in: #ffffff;
+    --bg-bubble-out: #d9fdd3;
+    --bg-bottom: #f0f2f5;
+    --bg-input: #ffffff;
+    --text-primary: #111b21;
+    --text-secondary: #667781;
+    --accent: #00a884;
+    --accent-dark: #008069;
+    --border: #e9edef;
+    --hover: #f5f6f6;
+    --active-chat: #f0f2f5;
+    --danger: #ea0038;
+    --shadow: 0 1px 0.5px rgba(11,20,26,.13);
+    --date-pill: rgba(255,255,255,0.92);
+  }
+
+  [data-theme="dark"] {
+    --bg-app: #0b141a;
+    --bg-sidebar: #111b21;
+    --bg-header: #202c33;
+    --text-header: #e9edef;
+    --bg-bubble-in: #202c33;
+    --bg-bubble-out: #005c4b;
+    --bg-bottom: #202c33;
+    --bg-input: #2a3942;
+    --text-primary: #e9edef;
+    --text-secondary: #8696a0;
+    --accent: #00a884;
+    --accent-dark: #00a884;
+    --border: #222d34;
+    --hover: #202c33;
+    --active-chat: #2a3942;
+    --date-pill: #182229;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Assistant', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #app {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    background: var(--bg-sidebar);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+
+  #sidebar {
+    width: 340px;
+    min-width: 290px;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-sidebar);
+    z-index: 2;
+  }
+
+  .bar {
+    height: 60px;
+    background: var(--bg-header);
+    color: var(--text-header);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .bar .title {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bar .title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+  }
+
+  .bar .title span:not(.app-logo) {
+    font-size: 12px;
+    opacity: 0.9;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  button.icon {
+    background: transparent;
+    border: none;
+    color: inherit;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  button.icon:hover {
+    background: rgba(255,255,255,0.12);
+  }
+
+  button.icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  #homeListEl {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 0;
+  }
+
+  .sys-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .sys-item:hover { background: var(--hover); }
+  .sys-item.active { background: var(--active-chat); }
+
+  .sys-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #53bdeb;
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .sys-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sys-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .sys-name {
+    font-weight: 600;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sys-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .sys-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  #chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-app);
+    background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0);
+    background-size: 24px 24px;
+    position: relative;
+    min-width: 0;
+  }
+
+  #searchBar {
+    background: var(--bg-sidebar);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  #searchBar[hidden] { display: none; }
+  #searchBar svg { width: 18px; height: 18px; color: var(--text-secondary); }
+  #searchBar input {
+    flex: 1;
+    border: none;
+    background: var(--bg-bottom);
+    color: var(--text-primary);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+  }
+  .search-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+  }
+  .search-close svg { width: 20px; height: 20px; }
+
+  #list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 5%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .status-line {
+    align-self: center;
+    background: var(--date-pill);
+    color: var(--text-secondary);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    box-shadow: var(--shadow);
+    margin: auto 0;
+  }
+
+  .date-divider {
+    align-self: center;
+    background: var(--date-pill);
+    color: var(--text-secondary);
+    padding: 5px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    margin: 8px 0;
+  }
+
+  .msg-row {
+    display: flex;
+    flex-direction: column;
+    max-width: 440px;
+    width: 100%;
+    align-self: flex-start;
+  }
+
+  .msg-row.out {
+    align-self: flex-end;
+  }
+
+  .bubble {
+    background: var(--bg-bubble-in);
+    border-radius: 12px;
+    padding: 8px 10px 6px;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+
+  .msg-row.out .bubble {
+    background: var(--bg-bubble-out);
+  }
+
+  .hover-popover {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 10px);
+    right: 28px;
+    background: #232d32;
+    color: #f1f5f7;
+    border-radius: 14px;
+    padding: 12px 16px;
+    min-width: 175px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    z-index: 50;
+    text-align: right;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .hover-popover::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    right: 24px;
+    border-width: 8px 8px 0 8px;
+    border-style: solid;
+    border-color: #232d32 transparent transparent transparent;
+  }
+
+  .bubble:hover .hover-popover {
+    display: block;
+  }
+
+  .hover-popover-phone {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+    direction: ltr;
+    text-align: right;
+  }
+
+  .hover-popover-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13.5px;
+    color: #d1d7db;
+  }
+
+  .hover-popover-line b {
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .hover-add-contact-btn {
+    margin-top: 8px;
+    padding-top: 7px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    color: #25d366;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    text-align: right;
+  }
+
+  .hover-add-contact-btn:hover {
+    text-decoration: underline;
+  }
+
+  .sender-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+    padding: 0 4px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .audio-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    direction: ltr;
+  }
+
+  .msg-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #dfe5e7;
+    color: #54656f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .msg-avatar svg { width: 24px; height: 24px; }
+  .mic-badge {
+    position: absolute;
+    bottom: -2px;
+    left: -2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #53bdeb;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-bubble-in);
+  }
+  .mic-badge svg { width: 10px; height: 10px; }
+
+  .play-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .play-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+  .speed-btn {
+    height: 26px;
+    min-width: 42px;
+    padding: 0 7px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(102, 119, 129, 0.16);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .speed-btn:hover {
+    background: rgba(0, 168, 132, 0.2);
+  }
+  .speed-btn.boosted {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .wave-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    min-width: 0;
+  }
+
+  .waveform {
+    height: 26px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .wave-bar {
+    flex: 1;
+    background: #b5bec3;
+    border-radius: 2px;
+    transition: background 0.1s;
+  }
+  .wave-bar.played {
+    background: var(--accent);
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .transcribe-row {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .transcribe-btn {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--accent-dark);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .transcribe-btn svg { width: 14px; height: 14px; }
+
+  .transcript-text {
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text-primary);
+    background: rgba(0,0,0,0.03);
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+
+  #bottombar {
+    min-height: 62px;
+    background: var(--bg-bottom);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  #fileInput { display: none; }
+
+  .attach {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .attach:hover { background: rgba(0,0,0,0.06); }
+  .attach.danger { color: var(--danger); }
+  .attach svg { width: 22px; height: 22px; }
+
+  #placeholderText {
+    flex: 1;
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    padding: 10px 16px;
+    border-radius: 22px;
+    font-size: 15px;
+    user-select: none;
+  }
+
+  #recTimer {
+    display: none;
+    flex: 1;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-input);
+    padding: 10px 16px;
+    border-radius: 22px;
+    font-weight: 600;
+  }
+  #recTimer .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--danger);
+    animation: pulse 1s infinite;
+  }
+  #recHoldHint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-right: auto;
+    font-weight: 400;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  #micBtn, #previewSendBtn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transition: transform 0.1s, background 0.15s;
+  }
+  #micBtn.recording {
+    background: var(--danger);
+    transform: scale(1.1);
+  }
+  #micBtn svg, #previewSendBtn svg { width: 22px; height: 22px; }
+
+  .pv { display: none !important; }
+  #bottombar.preview-mode .cmp { display: none !important; }
+  #bottombar.preview-mode .pv { display: flex !important; }
+
+  .preview-player {
+    flex: 1;
+    background: var(--bg-input);
+    padding: 6px 14px;
+    border-radius: 24px;
+    align-items: center;
+    gap: 10px;
+    direction: ltr;
+  }
+
+  .preview-progress {
+    flex: 1;
+    height: 6px;
+    background: #d1d7db;
+    border-radius: 3px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .preview-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+  }
+
+  .rec-time {
+    font-size: 13px;
+    color: var(--text-secondary);
+    min-width: 36px;
+  }
+
+  .ov {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 20, 26, 0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+  }
+  .ov.open { display: flex; }
+  #regOverlay { z-index: 150; }
+
+  .ov-box {
+    background: var(--bg-sidebar);
+    color: var(--text-primary);
+    width: 100%;
+    max-width: 480px;
+    max-height: 90dvh;
+    overflow-y: auto;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+  }
+
+  .ov-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .ov-head h2 { font-size: 20px; }
+
+  .ov-x {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+  }
+  .ov-x svg { width: 22px; height: 22px; }
+
+  .sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.45;
+  }
+
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 14px 0 6px;
+  }
+
+  input[type="text"], input[type="tel"], input[type="password"], input[type="url"], select {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-bottom);
+    color: var(--text-primary);
+    font-size: 15px;
+    outline: none;
+  }
+  input[type="text"]:focus, input[type="tel"]:focus, input[type="password"]:focus, input[type="url"]:focus, select:focus {
+    border-color: var(--accent);
+  }
+
+  details.adv {
+    margin-top: 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  details.adv summary {
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 15px;
+  }
+
+  .hint {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  .share-box {
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-bottom);
+  }
+
+  .share-box h3 {
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .share-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .badge-info {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--accent-dark);
+  }
+
+  .btnrow {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  button.primary, button.secondary {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: #fff; }
+  button.primary:hover { background: var(--accent-dark); }
+  button.secondary { background: var(--bg-bottom); color: var(--text-primary); border: 1px solid var(--border); }
+
+  .linkrow {
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  button.linklike {
+    background: none;
+    border: none;
+    color: var(--accent-dark);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.linklike.danger { color: var(--danger); }
+
+  .ctx-menu {
+    position: fixed;
+    background: var(--bg-sidebar);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    padding: 6px;
+    display: none;
+    z-index: 200;
+  }
+  .ctx-menu.open { display: block; }
+  .ctx-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: right;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 6px;
+  }
+  .ctx-item:hover { background: var(--hover); }
+  .ctx-item.danger { color: var(--danger); }
+  .ctx-item svg { width: 16px; height: 16px; }
+
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #202c33;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s;
+    z-index: 300;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    #sidebar { width: 100%; position: absolute; inset: 0; }
+    #sidebar.hidden-mobile { display: none; }
+    #backHomeBtn { display: flex !important; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logoSym" viewBox="0 0 40 40">
+    <circle cx="20" cy="20" r="19" fill="#25D366"/>
+    <path d="M20 8c-6.6 0-12 5.4-12 12 0 2.1.55 4.1 1.6 5.9L8 32l6.3-1.6c1.7.9 3.6 1.4 5.7 1.4 6.6 0 12-5.4 12-12S26.6 8 20 8z" fill="#fff"/>
+    <path d="M20 10.2c-5.4 0-9.8 4.4-9.8 9.8 0 1.9.55 3.7 1.5 5.2l.3.45-1 3.6 3.7-.97.45.27c1.5.9 3.2 1.4 5 1.4a9.8 9.8 0 1 0-.15-19.75z" fill="#25D366"/>
+    <path d="M16.4 14.6c-.25-.55-.5-.56-.73-.57l-.62-.01c-.22 0-.57.08-.87.4-.3.32-1.13 1.1-1.13 2.7s1.16 3.13 1.32 3.35c.16.22 2.24 3.58 5.53 4.88 2.73 1.08 3.29.86 3.88.81.6-.06 1.9-.78 2.17-1.53.27-.75.27-1.4.19-1.53-.08-.14-.3-.22-.62-.38-.32-.16-1.9-.94-2.2-1.04-.3-.11-.51-.16-.73.16-.22.32-.84 1.04-1.03 1.25-.19.22-.38.24-.7.08-.32-.16-1.36-.5-2.6-1.6-.96-.86-1.6-1.91-1.79-2.23-.19-.32-.02-.49.14-.65.14-.14.32-.38.48-.57.16-.19.22-.32.32-.54.11-.22.06-.4-.03-.57-.08-.16-.7-1.76-.99-2.4z" fill="#fff"/>
+  </symbol>
+</svg>
+
+<div id="app">
+  <aside id="sidebar">
+    <header class="bar">
+      <div class="title">
+        <div class="title-row">
+          <span class="app-logo"><svg width="26" height="26"><use href="#logoSym"/></svg></span>
+          <b>וואטסאפ פון</b>
+        </div>
+        <span id="homeCountLabel">0 מערכות מחוברות</span>
+      </div>
+      <div class="actions">
+        <button class="icon" id="homeAddBtn" title="הוספת מערכת">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+    </header>
+    <div id="homeListEl"></div>
+  </aside>
+
+  <main id="chat">
+    <header class="bar">
+      <div class="title">
+        <div class="title-row">
+          <button class="icon" id="backHomeBtn" title="חזרה למערכות" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <span class="app-logo"><svg width="26" height="26"><use href="#logoSym"/></svg></span>
+          <b id="headerTitle">וואטסאפ פון</b>
+        </div>
+        <span id="extLabel"></span>
+      </div>
+      <div class="actions">
+        <button class="icon" id="changeRegBtn" title="הרשמה / החלפת מספר טלפון">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </button>
+        <button class="icon" id="searchBtn" title="חיפוש">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button class="icon" id="refreshBtn" title="רענון הודעות">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+        <button class="icon" id="contactsBtn" title="אנשי קשר">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </button>
+        <button class="icon" id="settingsBtn" title="הגדרות מערכת">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="searchBar" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="searchInput" placeholder="חיפוש לפי שם, מספר או תמלול" dir="auto" autocomplete="off">
+      <button type="button" class="search-close" id="searchCloseBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div id="list">
+      <div class="status-line" id="statusLine">יש להירשם עם מספר טלפון כדי להשתמש במערכת</div>
+    </div>
+
+    <div id="bottombar">
+      <button class="attach cmp" id="uploadBtn" title="העלאת קובץ שמע">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+      </button>
+      <input type="file" id="fileInput" accept="audio/*">
+      <div id="placeholderText" class="cmp">לחצו על המיקרופון כדי להקליט הודעה</div>
+      <div id="recTimer"><span class="dot"></span><span id="recTimerText">00:00</span><span id="recHoldHint">לחצו שוב לסיום ההקלטה</span></div>
+      <button id="micBtn" class="cmp" title="הקלטה">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </button>
+
+      <button type="button" class="attach pv danger" id="previewCancelBtn" title="מחיקת ההקלטה">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+      </button>
+      <div class="preview-player pv">
+        <button type="button" class="play-btn" id="previewPlayBtn">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <div class="preview-progress" id="previewProgress">
+          <div class="preview-progress-fill" id="previewProgressFill"></div>
+        </div>
+        <button type="button" class="speed-btn" id="previewSpeedBtn" title="מהירות השמעה">1x</button>
+        <span class="rec-time" id="previewTimeLabel">0:00</span>
+      </div>
+      <button type="button" class="pv" id="previewSendBtn" title="שליחה וצינתוק">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </main>
+</div>
+
+<!-- חלון הרשמה חד-פעמית -->
+<div id="regOverlay" class="ov">
+  <div class="ov-box">
+    <div class="ov-head">
+      <h2>הרשמה למערכת</h2>
+    </div>
+    <div class="sub" id="regSubText">הזן פרטים להרשמה ראשונית. כל הודעה שתעלה לשלוחה תירשם על שם מספר הטלפון שלך.</div>
+
+    <div id="regPassWrap" style="display:none;">
+      <label for="regPassInput">סיסמה כללית (נדרשת בהרשמה הראשונית)</label>
+      <input type="password" id="regPassInput" placeholder="הזן סיסמה כללית" autocomplete="off">
+    </div>
+
+    <label for="regPhoneInput">מספר טלפון</label>
+    <input type="tel" id="regPhoneInput" placeholder="לדוגמה: 0501234567" dir="ltr" autocomplete="tel">
+
+    <div class="btnrow">
+      <button class="primary" id="saveRegBtn">אישור והמשך</button>
+    </div>
+  </div>
+</div>
+
+<!-- חלון הגדרות מערכת ושיתוף -->
+<div id="settingsOverlay" class="ov">
+  <div class="ov-box">    <div class="ov-head">
+      <h2 id="settingsTitle">עריכת מערכת</h2>
+      <button type="button" class="ov-x" id="settingsCloseX">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="sub">כדי להתחיל צריך רק את מספר המערכת והסיסמה של ימות המשיח.</div>
+
+    <label for="labelInput">שם תצוגה למערכת (אופציונלי)</label>
+    <input type="text" id="labelInput" placeholder="לדוגמה: קו השיעור" dir="auto">
+
+    <label for="tokenInput">מספר מערכת וסיסמה (בפורמט מספר:סיסמה)</label>
+    <input type="text" id="tokenInput" placeholder="0771234567:1234" dir="ltr" autocomplete="off">
+
+    <label for="extInput">מספר שלוחה</label>
+    <input type="text" id="extInput" placeholder="1" dir="ltr" value="1">
+
+    <div class="share-box">
+      <h3>שיתוף קישור ישיר למערכת (ללא חשיפת סיסמת הניהול)</h3>
+      <div class="hint">קישור זה יפתח למשתמשים רק את המערכת הנוכחית. ניתן להגדיר סיסמה כללית אחידה וקישור לגיליון Google Sheets המתעדכן של החברים המורשים.</div>
+
+      <label for="sharePassInput">סיסמה כללית אחידה לכולם (אופציונלי)</label>
+      <input type="text" id="sharePassInput" placeholder="לדוגמה: 1234" dir="ltr" autocomplete="off">
+
+      <label for="sheetsUrlInput">קישור לגיליון Google Sheets של חברים מורשים</label>
+      <input type="url" id="sheetsUrlInput" placeholder="https://docs.google.com/spreadsheets/d/..." dir="ltr">
+      <div class="hint">הגיליון צריך להיות פתוח לצפייה לקישור (או מפורסם לרשת/CSV). כל עדכון בגיליון ייטען אוטומטית בלי להעלות אקסל מחדש.</div>
+      <div class="badge-info" id="sheetsStatusLabel">לא הוגדר גיליון מורשים</div>
+
+      <div class="share-actions">
+        <button type="button" class="secondary" id="testSheetsBtn">בדוק וטען גיליון עכשיו</button>
+        <button type="button" class="secondary" id="copyShareLinkBtn">העתק קישור שיתוף למערכת</button>
+      </div>
+    </div>
+
+    <details class="adv" open>
+      <summary>הגדרות נוספות: צינתוק ותמלול</summary>
+      <label for="tzintukListInput">שם רשימת צינתוקים (לשליחה בסיום הקלטה)</label>
+      <input type="text" id="tzintukListInput" placeholder="לדוגמה: members" dir="ltr">
+      <div class="hint">כאשר שדה זה מלא, בסיום שליחת הקלטה מהאתר יישלח צינתוק אוטומטי לרשימה זו דרך ימות המשיח.</div>
+
+      <label for="speechApiKeyInput">מפתח Groq API (אופציונלי, לתמלול הודעות)</label>
+      <input type="text" id="speechApiKeyInput" placeholder="gsk_..." dir="ltr" autocomplete="off">
+    </details>
+
+    <label for="themeInput">ערכת צבעים</label>
+    <select id="themeInput">
+      <option value="auto">אוטומטי (לפי המכשיר)</option>
+      <option value="light">בהיר</option>
+      <option value="dark">כהה</option>
+    </select>
+
+    <div class="btnrow">
+      <button class="secondary" id="closeSettingsBtn">סגירה</button>
+      <button class="primary" id="saveSettingsBtn">שמירה וטעינה</button>
+    </div>
+    <div class="btnrow linkrow">
+      <button type="button" class="linklike" id="addAnotherSystemBtn">+ הוספת מערכת חדשה</button>
+      <button type="button" class="linklike danger" id="deleteSystemBtn">מחיקת מערכת זו</button>
+    </div>
+  </div>
+</div>
+
+<!-- חלון אנשי קשר מקומי -->
+<div id="contactsOverlay" class="ov">
+  <div class="ov-box">
+    <div class="ov-head">
+      <h2>אנשי קשר (זיהוי מתקשרים)</h2>
+      <button type="button" class="ov-x" id="contactsCloseX">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="sub">הוסף מספרי טלפון ושמות כדי להציג שם במקום מספר ליד ההקלטות.</div>
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <input type="text" id="newContactName" placeholder="שם (לדוגמה: הרב כהן)">
+      <input type="text" id="newContactPhone" placeholder="טלפון (0501234567)" dir="ltr">
+      <button class="primary" id="saveNewContactBtn">הוסף</button>
+    </div>
+    <div id="contactsList" style="max-height:220px; overflow-y:auto;"></div>
+    <div class="btnrow">
+      <button class="secondary" id="closeContactsBtn">סגירה</button>
+    </div>
+  </div>
+</div>
+
+<!-- תפריט מחיקת הודעה -->
+<div class="ctx-menu" id="ctxMenu">
+  <button type="button" class="ctx-item danger" id="ctxDeleteBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    מחיקת ההודעה שלי
+  </button>
+</div>
+
+<div id="toastEl" class="toast"></div>
+
+<script>
+const YEMOT_API = 'https://www.call2all.co.il/ym/api/';
+const PLAYBACK_SPEEDS = [1, 1.25, 1.5, 2];
+
+let systems = JSON.parse(localStorage.getItem('yemot_systems') || '[]');
+let activeId = localStorage.getItem('yemot_active_id') || (systems[0]?.id || null);
+let registeredPhone = localStorage.getItem('yemot_registered_phone') || '';
+let verifiedShareKey = localStorage.getItem('yemot_verified_share_key') || '';
+let uploadedMeta = JSON.parse(localStorage.getItem('yemot_uploaded_meta') || '{}');
+let contacts = JSON.parse(localStorage.getItem('yemot_contacts') || '{}');
+let transcripts = JSON.parse(localStorage.getItem('yemot_transcripts') || '{}');
+let playbackRate = parseFloat(localStorage.getItem('yemot_playback_rate') || '1') || 1;
+if (!PLAYBACK_SPEEDS.includes(playbackRate)) playbackRate = 1;
+
+let currentRecordings = [];
+let currentRenderedEntries = [];
+let editingSystemId = null;
+let sharedAccessConfig = null;
+let loadedAllowedPhonesCache = [];
+
+let activeAudio = null;
+let activePlayBtn = null;
+let activeTrackIndex = -1;
+let autoAdvanceQueue = false;
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordedBlob = null;
+let recInterval = null;
+let recSeconds = 0;
+let previewAudio = new Audio();
+let contextTargetFile = null;
+
+const $ = id => document.getElementById(id);
+
+function showToast(msg) {
+  const el = $('toastEl');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+function formatSpeedLabel(rate) {
+  return `${rate}x`;
+}
+
+function applyPlaybackRateToUI() {
+  const label = formatSpeedLabel(playbackRate);
+  document.querySelectorAll('.speed-btn').forEach(btn => {
+    btn.textContent = label;
+    btn.classList.toggle('boosted', playbackRate > 1);
+  });
+  if (activeAudio) {
+    activeAudio.playbackRate = playbackRate;
+  }
+  if (previewAudio) {
+    previewAudio.playbackRate = playbackRate;
+  }
+}
+
+function cyclePlaybackSpeed() {
+  const idx = PLAYBACK_SPEEDS.indexOf(playbackRate);
+  playbackRate = PLAYBACK_SPEEDS[(idx + 1) % PLAYBACK_SPEEDS.length];
+  localStorage.setItem('yemot_playback_rate', String(playbackRate));
+  applyPlaybackRateToUI();
+  showToast(`מהירות השמעה: ${formatSpeedLabel(playbackRate)}`);
+}
+
+function getActiveSystem() {
+  return systems.find(s => s.id === activeId) || null;
+}
+
+function saveSystems() {
+  localStorage.setItem('yemot_systems', JSON.stringify(systems));
+  if (activeId) localStorage.setItem('yemot_active_id', activeId);
+}
+
+function saveUploadedMeta() {
+  localStorage.setItem('yemot_uploaded_meta', JSON.stringify(uploadedMeta));
+}
+
+function normalizePhone(raw) {
+  let digits = String(raw || '').replace(/\D/g, '');
+  if (digits.startsWith('972') && digits.length >= 11) {
+    digits = '0' + digits.slice(3);
+  }
+  return digits;
+}
+
+function isValidPhone(digits) {
+  return digits.length >= 9 && digits.length <= 15;
+}
+
+function buildCallerAnnouncementText(phone) {
+  const clean = normalizePhone(phone);
+  if (!isValidPhone(clean)) return '';
+  return `הודעה ממספר ${clean.split('').join(' ')}`;
+}
+
+// בונה את קובץ הפרטים בפורמט שנשלף מהקלטה טלפונית תקינה.
+function buildRecordingMetadata(sys, phone, audioFileName) {
+  const cleanPhone = normalizePhone(phone);
+  if (!isValidPhone(cleanPhone)) throw new Error('מספר הטלפון הרשום אינו תקין');
+
+  const customerDID = String(sys?.token || '').split(':')[0].replace(/\D/g, '');
+  if (!customerDID) throw new Error('לא ניתן לזהות את מספר המערכת מתוך הטוקן');
+
+  const fileNumber = String(audioFileName || '').replace(/\.[^.]+$/, '');
+  if (!/^\d+$/.test(fileNumber)) throw new Error('שם קובץ ההקלטה אינו בפורמט מספרי');
+
+  const now = new Date();
+  const two = n => String(n).padStart(2, '0');
+  const datePart = `${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}-${two(now.getHours())}-${two(now.getMinutes())}-${two(now.getSeconds())}`;
+
+  // Folder-2 נשמר כפי שמופיע בקובץ הפרטים של ההקלטה הטלפונית התקינה שנבדקה.
+  return `Record-CustomerDID-${customerDID}-Phone-${cleanPhone}-Date-${datePart}-Folder-2-File-${fileNumber}`;
+}
+
+async function uploadRecordingMetadata(sys, audioFileName, phone) {
+  const metadataText = buildRecordingMetadata(sys, phone, audioFileName);
+  const metadataPath = `ivr2:/${sys.ext || '1'}/${audioFileName.replace(/\.[^.]+$/, '')}.txt`;
+  const fd = new FormData();
+  fd.append('token', sys.token);
+  fd.append('what', metadataPath);
+  fd.append('contents', metadataText);
+
+  const response = await fetch(YEMOT_API + 'UploadTextFile', {
+    method: 'POST',
+    body: fd
+  });
+  const data = await response.json();
+  if (data.responseStatus !== 'OK') {
+    throw new Error(data.message || data.error || 'שרת ימות המשיח לא אישר את העלאת קובץ הפרטים');
+  }
+  return { path: metadataPath, contents: metadataText, response: data };
+}
+
+function createUploadSessionId() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  return 'qquuid_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+}
+
+function isListenerRecordingFile(file) {
+  const name = String(file?.name || '').trim();
+  if (!name) return false;
+  if (!/\.(wav|mp3|ogg|m4a)$/i.test(name)) return false;
+  if (file?.isSystem || file?.systemMessage || file?.isGreeting) return false;
+  if (/^(system|sys|m\d+|greeting|welcome|menu|error|bye|goodbye|prompt|tts)/i.test(name)) return false;
+  return /^\d+\.(wav|mp3|ogg|m4a)$/i.test(name);
+}
+
+function extractFileIndex(file) {
+  const name = String(file?.name || '');
+  const match = name.match(/^(\d+)/);
+  if (!match) return -1;
+  return parseInt(match[1], 10);
+}
+
+function buildNextSequentialFileName(existingFiles = []) {
+  let maxIdx = -1;
+  for (const f of existingFiles || []) {
+    const idx = extractFileIndex(f);
+    if (idx > maxIdx) maxIdx = idx;
+  }
+  const nextIdx = maxIdx + 1;
+  const padded = String(nextIdx).padStart(3, '0');
+  return `${padded}.wav`;
+}
+
+function parseYemotDateValue(val) {
+  if (!val) return null;
+
+  if (typeof val === 'number') {
+    const ms = val < 1e12 ? val * 1000 : val;
+    const d = new Date(ms);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  const str = String(val).trim();
+  if (!str) return null;
+
+  if (/^\d+$/.test(str)) {
+    const num = Number(str);
+    const ms = num < 1e12 ? num * 1000 : num;
+    const d = new Date(ms);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  const dmMatch = str.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (dmMatch) {
+    const day = parseInt(dmMatch[1], 10);
+    const month = parseInt(dmMatch[2], 10) - 1;
+    const year = parseInt(dmMatch[3], 10);
+    const hour = dmMatch[4] ? parseInt(dmMatch[4], 10) : 0;
+    const min = dmMatch[5] ? parseInt(dmMatch[5], 10) : 0;
+    const sec = dmMatch[6] ? parseInt(dmMatch[6], 10) : 0;
+    const d = new Date(year, month, day, hour, min, sec);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  const parsed = new Date(str);
+  return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getFileDateFromDetails(file) {
+  const candidates = [
+    file?.date,
+    file?.mtime,
+    file?.ctime,
+    file?.timestamp,
+    file?.created,
+    file?.time
+  ];
+  for (const c of candidates) {
+    const d = parseYemotDateValue(c);
+    if (d) return d;
+  }
+  return new Date();
+}
+
+function extractPhoneFromFileDetails(file, sysId) {
+  const directCandidates = [
+    file?.Phone,
+    file?.callerId,
+    file?.callerid,
+    file?.phone,
+    file?.clid,
+    file?.callId,
+    file?.from,
+    file?.recorder,
+    file?.recordedBy,
+    file?.userPhone
+  ];
+
+  for (const val of directCandidates) {
+    const norm = normalizePhone(val);
+    if (isValidPhone(norm)) return norm;
+  }
+
+  if (file?.meta && typeof file.meta === 'object') {
+    for (const val of Object.values(file.meta)) {
+      const norm = normalizePhone(val);
+      if (isValidPhone(norm)) return norm;
+    }
+  }
+
+  const meta = uploadedMeta[`${sysId}_${file?.name}`];
+  if (meta && (meta.Phone || meta.phone || meta.callerId)) {
+    const normMeta = normalizePhone(meta.Phone || meta.phone || meta.callerId);
+    if (isValidPhone(normMeta)) return normMeta;
+  }
+
+  return '';
+}
+
+function injectRecorderPhoneToFile(file, sysId, phone) {
+  const cleanPhone = normalizePhone(phone);
+  if (!isValidPhone(cleanPhone) || !file) return file;
+  file.Phone = cleanPhone;
+  file.callerId = cleanPhone;
+  file.phone = cleanPhone;
+  if (sysId && file.name) {
+    uploadedMeta[`${sysId}_${file.name}`] = {
+      ...(uploadedMeta[`${sysId}_${file.name}`] || {}),
+      Phone: cleanPhone,
+      phone: cleanPhone,
+      callerId: cleanPhone
+    };
+    saveUploadedMeta();
+  }
+  return file;
+}
+
+function buildCsvExportUrl(sheetUrl) {
+  const trimmed = String(sheetUrl || '').trim();
+  if (!trimmed) return '';
+  if (trimmed.includes('/export') || trimmed.includes('output=csv')) return trimmed;
+
+  const match = trimmed.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if (match && match[1]) {
+    const sheetId = match[1];
+    const gidMatch = trimmed.match(/[#&?]gid=(\d+)/);
+    const gidParam = gidMatch ? `&gid=${gidMatch[1]}` : '';
+    return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv${gidParam}`;
+  }
+  return trimmed;
+}
+
+function parsePhonesFromCsvText(csvText) {
+  const phonesSet = new Set();
+  const lines = String(csvText || '').split(/\r?\n/);
+  for (const line of lines) {
+    const cells = line.split(/[,;\t]/);
+    for (const cell of cells) {
+      const cleaned = cell.replace(/^["']|["']$/g, '').trim();
+      const p = normalizePhone(cleaned);
+      if (isValidPhone(p)) phonesSet.add(p);
+    }
+  }
+  return Array.from(phonesSet);
+}
+
+async function fetchAllowedPhonesFromSheets(sheetUrl) {
+  const csvUrl = buildCsvExportUrl(sheetUrl);
+  if (!csvUrl) return [];
+  const res = await fetch(csvUrl, { cache: 'no-store' });
+  if (!res.ok) throw new Error('לא ניתן לקרוא את הגיליון. יש לוודא שהגיליון פתוח לצפייה לקישור.');
+  const text = await res.text();
+  return parsePhonesFromCsvText(text);
+}
+
+function encodeSharePayload(obj) {
+  const json = JSON.stringify(obj);
+  const bytes = new TextEncoder().encode(json);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decodeSharePayload(b64) {
+  let norm = String(b64 || '').replace(/-/g, '+').replace(/_/g, '/');
+  while (norm.length % 4) norm += '=';
+  const bin = atob(norm);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const json = new TextDecoder().decode(bytes);
+  return JSON.parse(json);
+}
+
+function checkIncomingShareLink() {
+  const hash = window.location.hash || '';
+  if (!hash.startsWith('#share=')) return false;
+
+  try {
+    const raw = hash.slice(7);
+    const payload = decodeSharePayload(raw);
+    if (!payload || !payload.token) return false;
+
+    const shareId = 'shared_' + btoa(payload.token).slice(0, 10);
+    const shareSignature = `${shareId}:${String(payload.sharePass || '')}`;
+
+    const sharedSys = {
+      id: shareId,
+      label: payload.label || 'מערכת משותפת',
+      token: payload.token,
+      ext: payload.ext || '1',
+      tzintukList: payload.tzintukList || '',
+      groqKey: payload.groqKey || '',
+      sheetsUrl: payload.sheetsUrl || '',
+      sharePass: payload.sharePass || '',
+      isSharedView: true
+    };
+
+    const existingIdx = systems.findIndex(s => s.id === shareId);
+    if (existingIdx !== -1) systems[existingIdx] = { ...systems[existingIdx], ...sharedSys };
+    else systems.unshift(sharedSys);
+
+    activeId = shareId;
+    saveSystems();
+
+    sharedAccessConfig = {
+      shareSignature,
+      password: String(payload.sharePass || ''),
+      sheetsUrl: String(payload.sheetsUrl || '')
+    };
+    return true;
+  } catch (e) {
+    showToast('קישור השיתוף אינו תקין');
+    return false;
+  }
+}
+
+function isSharedPasswordAlreadyVerified() {
+  if (!sharedAccessConfig || !sharedAccessConfig.password) return true;
+  return verifiedShareKey === sharedAccessConfig.shareSignature;
+}
+
+function needsRegistrationNow() {
+  if (!registeredPhone) return true;
+  if (sharedAccessConfig && sharedAccessConfig.password && !isSharedPasswordAlreadyVerified()) {
+    return true;
+  }
+  return false;
+}
+
+$('testSheetsBtn').onclick = async () => {
+  const url = $('sheetsUrlInput').value.trim();
+  if (!url) {
+    showToast('יש להזין קישור לגיליון Google Sheets');
+    return;
+  }
+  $('sheetsStatusLabel').textContent = 'טוען נתונים מהגיליון...';
+  try {
+    const list = await fetchAllowedPhonesFromSheets(url);
+    loadedAllowedPhonesCache = list;
+    $('sheetsStatusLabel').textContent = `נטענו ${list.length} מספרים מורשים מהגיליון`;
+    showToast(`נטענו ${list.length} מספרים מורשים מהגיליון`);
+  } catch (err) {
+    $('sheetsStatusLabel').textContent = 'שגיאה בטעינת הגיליון';
+    showToast(err.message);
+  }
+};
+
+$('copyShareLinkBtn').onclick = async () => {
+  const token = $('tokenInput').value.trim();
+  if (!token.includes(':')) {
+    showToast('יש להזין תחילה מספר מערכת וסיסמה בפורמט 0771234567:1234');
+    return;
+  }
+
+  const shareData = {
+    label: $('labelInput').value.trim() || token.split(':')[0],
+    token: token,
+    ext: $('extInput').value.trim() || '1',
+    tzintukList: $('tzintukListInput').value.trim(),
+    groqKey: $('speechApiKeyInput').value.trim(),
+    sharePass: $('sharePassInput').value.trim(),
+    sheetsUrl: $('sheetsUrlInput').value.trim()
+  };
+
+  const baseUrl = window.location.origin + window.location.pathname;
+  const shareUrl = `${baseUrl}#share=${encodeSharePayload(shareData)}`;
+
+  try {
+    await navigator.clipboard.writeText(shareUrl);
+    showToast('קישור השיתוף למערכת הועתק ללוח!');
+  } catch (e) {
+    prompt('העתק את קישור השיתוף:', shareUrl);
+  }
+};
+
+function updateRegistrationHeader() {
+  const sys = getActiveSystem();
+  if (!sys) {
+    $('extLabel').textContent = registeredPhone ? `נרשם: ${registeredPhone}` : '';
+    return;
+  }
+  const regPart = registeredPhone ? ` • מחובר כ: ${registeredPhone}` : '';
+  $('extLabel').textContent = `שלוחה ${sys.ext || '1'}${regPart}`;
+}
+
+function openRegistrationModal() {
+  const needsPass = Boolean(sharedAccessConfig && sharedAccessConfig.password && !isSharedPasswordAlreadyVerified());
+  $('regPassWrap').style.display = needsPass ? 'block' : 'none';
+  $('regPassInput').value = '';
+  $('regPhoneInput').value = registeredPhone || '';
+
+  if (sharedAccessConfig && sharedAccessConfig.sheetsUrl) {
+    $('regSubText').textContent = 'הרשמה ראשונית למערכת המשותפת: הזן מספר טלפון המופיע בגיליון המורשים. כל הודעה שתעלה תירשם על שם מספר זה.';
+  } else {
+    $('regSubText').textContent = 'הזן מספר טלפון להרשמה ראשונית. כל הודעה שתעלה לשלוחה תירשם ותוצג על שם מספר זה.';
+  }
+
+  $('regOverlay').classList.add('open');
+  setTimeout(() => (needsPass ? $('regPassInput') : $('regPhoneInput')).focus(), 80);
+}
+
+$('saveRegBtn').onclick = async () => {
+  if (sharedAccessConfig && sharedAccessConfig.password && !isSharedPasswordAlreadyVerified()) {
+    const enteredPass = $('regPassInput').value.trim();
+    if (enteredPass !== sharedAccessConfig.password) {
+      showToast('סיסמה כללית שגויה');
+      return;
+    }
+    verifiedShareKey = sharedAccessConfig.shareSignature;
+    localStorage.setItem('yemot_verified_share_key', verifiedShareKey);
+  }
+
+  const digits = normalizePhone($('regPhoneInput').value);
+  if (!isValidPhone(digits)) {
+    showToast('יש להזין מספר טלפון תקין (לפחות 9 ספרות)');
+    return;
+  }
+
+  const activeSys = getActiveSystem();
+  const sheetsUrl = (sharedAccessConfig && sharedAccessConfig.sheetsUrl) || (activeSys && activeSys.sheetsUrl) || '';
+
+  if (sheetsUrl) {
+    try {
+      const allowedList = await fetchAllowedPhonesFromSheets(sheetsUrl);
+      loadedAllowedPhonesCache = allowedList;
+      if (allowedList.length > 0 && !allowedList.includes(digits)) {
+        showToast('מספר הטלפון אינו מופיע בגיליון החברים המורשים');
+        return;
+      }
+    } catch (err) {
+      showToast('שגיאה בבדיקת רשימת המורשים מהגיליון: ' + err.message);
+      return;
+    }
+  }
+
+  registeredPhone = digits;
+  localStorage.setItem('yemot_registered_phone', registeredPhone);
+  $('regOverlay').classList.remove('open');
+  updateRegistrationHeader();
+  showToast(`נרשמת בהצלחה עם המספר ${registeredPhone}`);
+
+  if (systems.length > 0) {
+    loadMessages();
+  } else {
+    openSettings(null);
+  }
+};
+
+$('changeRegBtn').onclick = () => openRegistrationModal();
+
+function renderSidebar() {
+  const listEl = $('homeListEl');
+  $('homeCountLabel').textContent = `${systems.length} ${systems.length === 1 ? 'מערכת מחוברת' : 'מערכות מחוברות'}`;
+  listEl.innerHTML = '';
+
+  systems.forEach(sys => {
+    const title = sys.label || sys.token.split(':')[0];
+    const initials = title.slice(0, 2);
+    const lastRec = sys.lastRecSummary || `שלוחה ${sys.ext || '1'}`;
+    const lastTime = sys.lastRecTime || '';
+
+    const div = document.createElement('div');
+    div.className = `sys-item ${sys.id === activeId ? 'active' : ''}`;
+    div.innerHTML = `
+      <div class="sys-avatar">${initials}</div>
+      <div class="sys-info">
+        <div class="sys-top">
+          <span class="sys-name">${escapeHtml(title)}</span>
+          <span class="sys-time">${escapeHtml(lastTime)}</span>
+        </div>
+        <div class="sys-sub">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+          <span>${escapeHtml(lastRec)}</span>
+        </div>
+      </div>
+    `;
+    div.onclick = () => {
+      activeId = sys.id;
+      saveSystems();
+      renderSidebar();
+      $('sidebar').classList.add('hidden-mobile');
+      if (needsRegistrationNow()) {
+        openRegistrationModal();
+        return;
+      }
+      loadMessages();
+    };
+    listEl.appendChild(div);
+  });
+}
+
+async function callYemot(endpoint, params = {}) {
+  const sys = getActiveSystem();
+  if (!sys) throw new Error('לא נבחרה מערכת');
+
+  const formData = new FormData();
+  formData.append('token', sys.token);
+  for (const [k, v] of Object.entries(params)) {
+    formData.append(k, v);
+  }
+
+  const res = await fetch(YEMOT_API + endpoint, {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  if (data.responseStatus !== 'OK') {
+    throw new Error(data.message || 'שגיאה בתקשורת עם ימות המשיח');
+  }
+  return data;
+}
+
+function stopCurrentPlayback() {
+  autoAdvanceQueue = false;
+  activeTrackIndex = -1;
+  const playSvg = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  if (activeAudio) {
+    activeAudio.pause();
+    activeAudio = null;
+  }
+  if (activePlayBtn) {
+    activePlayBtn.innerHTML = playSvg;
+    activePlayBtn = null;
+  }
+}
+
+async function loadMessages() {
+  if (needsRegistrationNow()) {
+    openRegistrationModal();
+    return;
+  }
+
+  stopCurrentPlayback();
+
+  const sys = getActiveSystem();
+  if (!sys) {
+    $('headerTitle').textContent = 'וואטסאפ פון';
+    updateRegistrationHeader();
+    $('list').innerHTML = '<div class="status-line">לחצו על + להוספת מערכת ימות המשיח</div>';
+    return;
+  }
+
+  const sheetsUrl = (sharedAccessConfig && sharedAccessConfig.sheetsUrl) || sys.sheetsUrl || '';
+  if (sheetsUrl && registeredPhone) {
+    try {
+      const allowedList = await fetchAllowedPhonesFromSheets(sheetsUrl);
+      loadedAllowedPhonesCache = allowedList;
+      if (allowedList.length > 0 && !allowedList.includes(registeredPhone)) {
+        $('list').innerHTML = `<div class="status-line" style="color:var(--danger)">המספר ${escapeHtml(registeredPhone)} אינו מופיע ברשימת המורשים העדכנית בגיליון</div>`;
+        return;
+      }
+    } catch (err) {
+      showToast('לא ניתן לרענן את גיליון המורשים כעת');
+    }
+  }
+
+  $('headerTitle').textContent = sys.label || sys.token.split(':')[0];
+  updateRegistrationHeader();
+  $('list').innerHTML = '<div class="status-line">טוען הקלטות מהמערכת...</div>';
+
+  try {
+    const extPath = `ivr2:/${sys.ext || '1'}/`;
+    const data = await callYemot('GetIVR2Dir', { path: extPath });
+    const files = (data.files || []).filter(isListenerRecordingFile);
+
+    files.sort((a, b) => {
+      const idxA = extractFileIndex(a);
+      const idxB = extractFileIndex(b);
+      if (idxA !== -1 && idxB !== -1 && idxA !== idxB) {
+        return idxA - idxB;
+      }
+      if (idxA !== -1 && idxB === -1) return -1;
+      if (idxB !== -1 && idxA === -1) return 1;
+      return getFileDateFromDetails(a).getTime() - getFileDateFromDetails(b).getTime();
+    });
+
+    currentRecordings = files;
+
+    if (files.length > 0) {
+      const latest = files[files.length - 1];
+      const latestPhone = extractPhoneFromFileDetails(latest, sys.id);
+      sys.lastRecSummary = contacts[latestPhone] || latestPhone || latest.name;
+      sys.lastRecTime = formatDayLabel(getFileDateFromDetails(latest));
+      saveSystems();
+      renderSidebar();
+    }
+
+    renderMessages(files);
+  } catch (err) {
+    $('list').innerHTML = `<div class="status-line" style="color:var(--danger)">שגיאה: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function formatDotDate(date) {
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
+}
+
+function renderMessages(files) {
+  const listEl = $('list');
+  const query = $('searchInput').value.trim().toLowerCase();
+  listEl.innerHTML = '';
+  currentRenderedEntries = [];
+
+  const sys = getActiveSystem();
+  if (!files || files.length === 0) {
+    listEl.innerHTML = '<div class="status-line">אין עדיין הקלטות מאזינים בשלוחה זו</div>';
+    return;
+  }
+
+  let lastDateStr = '';
+
+  files.forEach(file => {
+    const phone = extractPhoneFromFileDetails(file, sys.id);
+    const contactName = contacts[phone] || phone || file.name;
+    const fileKey = `${sys.id}_${file.name}`;
+    const transcript = transcripts[fileKey] || '';
+    const isMine = Boolean(registeredPhone && phone && phone === registeredPhone);
+
+    if (query) {
+      const match = contactName.toLowerCase().includes(query) ||
+                    phone.includes(query) ||
+                    String(file.name || '').toLowerCase().includes(query) ||
+                    transcript.toLowerCase().includes(query);
+      if (!match) return;
+    }
+
+    const d = getFileDateFromDetails(file);
+    const dayStr = formatDayLabel(d);
+    if (dayStr !== lastDateStr) {
+      const pill = document.createElement('div');
+      pill.className = 'date-divider';
+      pill.textContent = dayStr;
+      listEl.appendChild(pill);
+      lastDateStr = dayStr;
+    }
+
+    const dotDateStr = formatDotDate(d);
+    const timeStr = d.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+    const durationSec = Math.round(file.duration || 0);
+    const durStr = formatDuration(durationSec);
+    const alreadySavedContact = Boolean(phone && contacts[phone]);
+    const downloadUrl = `${YEMOT_API}DownloadFile?token=${encodeURIComponent(sys.token)}&path=${encodeURIComponent(`ivr2:/${sys.ext || '1'}/${file.name}`)}`;
+
+    const row = document.createElement('div');
+    row.className = `msg-row ${isMine ? 'out' : ''}`;
+    row.oncontextmenu = (e) => {
+      e.preventDefault();
+      if (!isMine) {
+        showToast('ניתן למחוק רק הודעות שהוקלטו מהמספר שלך');
+        return;
+      }
+      openCtxMenu(e.pageX, e.pageY, file);
+    };
+
+    let barsHtml = '';
+    const seed = file.name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    for (let i = 0; i < 34; i++) {
+      const h = 25 + ((seed * (i + 3) * 17) % 75);
+      barsHtml += `<div class="wave-bar" style="height:${h}%"></div>`;
+    }
+
+    row.innerHTML = `
+      <div class="bubble">
+        <div class="hover-popover">
+          <div class="hover-popover-phone">${escapeHtml(phone || contactName)}</div>
+          <div class="hover-popover-line"><b>תאריך:</b><span>${escapeHtml(dotDateStr)}</span></div>
+          <div class="hover-popover-line"><b>שעה:</b><span>${escapeHtml(timeStr)}</span></div>
+          <div class="hover-popover-line"><b>משך:</b><span>${escapeHtml(durStr)}</span></div>
+          ${phone && !alreadySavedContact ? `<button type="button" class="hover-add-contact-btn">+ הוספה לאנשי קשר</button>` : ''}
+        </div>
+        <div class="sender-name">
+          <span>${escapeHtml(contactName)}</span>
+          ${phone ? `<span style="font-weight:400;font-size:12px;color:var(--text-secondary)" dir="ltr">${escapeHtml(phone)}</span>` : ''}
+        </div>
+        <div class="audio-box">
+          <div class="msg-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div class="mic-badge">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/></svg>
+            </div>
+          </div>
+          <button class="play-btn" title="הפעלה/השהיה">
+            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+          <div class="wave-wrap">
+            <div class="waveform">${barsHtml}</div>
+            <div class="meta-row">
+              <span class="dur-lbl">${durStr}</span>
+              <span>${timeStr}</span>
+            </div>
+          </div>
+          <button type="button" class="speed-btn ${playbackRate > 1 ? 'boosted' : ''}" title="מהירות השמעה">${formatSpeedLabel(playbackRate)}</button>
+        </div>
+        <div class="transcribe-row">
+          <button class="transcribe-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+            ${transcript ? 'תמלול מחדש' : 'תמלול הודעה'}
+          </button>
+          ${transcript ? `<div class="transcript-text">${escapeHtml(transcript)}</div>` : ''}
+        </div>
+      </div>
+    `;
+
+    const addContactBtn = row.querySelector('.hover-add-contact-btn');
+    if (addContactBtn && phone) {
+      addContactBtn.onclick = (e) => {
+        e.stopPropagation();
+        const enteredName = prompt(`הזן שם עבור ${phone}:`);
+        if (enteredName && enteredName.trim()) {
+          contacts[phone] = enteredName.trim();
+          localStorage.setItem('yemot_contacts', JSON.stringify(contacts));
+          showToast(`המספר ${phone} נשמר בשם ${enteredName.trim()}`);
+          renderMessages(currentRecordings);
+        }
+      };
+    }
+
+    const playBtn = row.querySelector('.play-btn');
+    const waveWrap = row.querySelector('.wave-wrap');
+    const bars = row.querySelectorAll('.wave-bar');
+    const durLbl = row.querySelector('.dur-lbl');
+    const speedBtn = row.querySelector('.speed-btn');
+
+    const entryIndex = currentRenderedEntries.length;
+    currentRenderedEntries.push({
+      row,
+      url: downloadUrl,
+      playBtn,
+      bars,
+      durLbl,
+      origDur: durStr
+    });
+
+    playBtn.onclick = () => startOrToggleTrack(entryIndex, true);
+    speedBtn.onclick = (e) => {
+      e.stopPropagation();
+      cyclePlaybackSpeed();
+    };
+
+    waveWrap.onclick = (e) => {
+      if (!activeAudio || activeTrackIndex !== entryIndex) return;
+      const rect = waveWrap.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      if (activeAudio.duration) {
+        activeAudio.currentTime = ratio * activeAudio.duration;
+      }
+    };
+
+    const trBtn = row.querySelector('.transcribe-btn');
+    trBtn.onclick = () => transcribeMessage(downloadUrl, fileKey, trBtn);
+
+    listEl.appendChild(row);
+  });
+
+  listEl.scrollTop = listEl.scrollHeight;
+}
+
+function resetVisualTrack(entry) {
+  const playSvg = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  if (!entry) return;
+  entry.playBtn.innerHTML = playSvg;
+  entry.bars.forEach(b => b.classList.remove('played'));
+  entry.durLbl.textContent = entry.origDur;
+}
+
+function startOrToggleTrack(index, enableAutoAdvance = true) {
+  const entry = currentRenderedEntries[index];
+  if (!entry) return;
+
+  const playSvg = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  const pauseSvg = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+
+  if (activeAudio && activeTrackIndex === index) {
+    if (activeAudio.paused) {
+      autoAdvanceQueue = enableAutoAdvance;
+      activeAudio.playbackRate = playbackRate;
+      activeAudio.play();
+      entry.playBtn.innerHTML = pauseSvg;
+    } else {
+      autoAdvanceQueue = false;
+      activeAudio.pause();
+      entry.playBtn.innerHTML = playSvg;
+    }
+    return;
+  }
+
+  if (activeAudio && activeTrackIndex !== -1) {
+    activeAudio.pause();
+    resetVisualTrack(currentRenderedEntries[activeTrackIndex]);
+  }
+
+  autoAdvanceQueue = enableAutoAdvance;
+  activeTrackIndex = index;
+
+  const audio = new Audio(entry.url);
+  audio.playbackRate = playbackRate;
+  activeAudio = audio;
+  activePlayBtn = entry.playBtn;
+  entry.playBtn.innerHTML = pauseSvg;
+
+  entry.row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  audio.ontimeupdate = () => {
+    if (!audio.duration) return;
+    const progress = audio.currentTime / audio.duration;
+    const activeCount = Math.floor(progress * entry.bars.length);
+    entry.bars.forEach((b, idx) => b.classList.toggle('played', idx <= activeCount));
+    entry.durLbl.textContent = formatDuration(Math.floor(audio.currentTime));
+  };
+
+  audio.onended = () => {
+    const finishedIndex = activeTrackIndex;
+    const shouldContinue = autoAdvanceQueue;
+    resetVisualTrack(entry);
+    activeAudio = null;
+    activePlayBtn = null;
+    activeTrackIndex = -1;
+
+    if (shouldContinue && finishedIndex + 1 < currentRenderedEntries.length) {
+      startOrToggleTrack(finishedIndex + 1, true);
+    } else {
+      autoAdvanceQueue = false;
+    }
+  };
+
+  audio.onerror = () => {
+    showToast('שגיאה בטעינת קובץ השמע');
+    resetVisualTrack(entry);
+    activeAudio = null;
+    activePlayBtn = null;
+    activeTrackIndex = -1;
+    autoAdvanceQueue = false;
+  };
+
+  audio.play().catch(() => {
+    showToast('לא ניתן להפעיל את ההקלטה');
+  });
+}
+
+async function transcribeMessage(audioUrl, fileKey, btn) {
+  const sys = getActiveSystem();
+  if (!sys || !sys.groqKey) {
+    showToast('יש להזין מפתח Groq API בהגדרות כדי לתמלל הודעות');
+    openSettings(sys?.id);
+    return;  }
+
+  const origText = btn.innerHTML;
+  btn.textContent = 'מתמלל...';
+  btn.disabled = true;
+
+  try {
+    const audioRes = await fetch(audioUrl);
+    const blob = await audioRes.blob();
+
+    const fd = new FormData();
+    fd.append('file', blob, 'audio.wav');
+    fd.append('model', 'whisper-large-v3');
+    fd.append('language', 'he');
+
+    const res = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${sys.groqKey}` },
+      body: fd
+    });
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+
+    transcripts[fileKey] = data.text || '(לא זוהה דיבור)';
+    localStorage.setItem('yemot_transcripts', JSON.stringify(transcripts));
+    renderMessages(currentRecordings);
+  } catch (err) {
+    showToast('שגיאה בתמלול: ' + err.message);
+    btn.innerHTML = origText;
+    btn.disabled = false;
+  }
+}
+
+$('micBtn').onclick = async () => {
+  if (needsRegistrationNow()) {
+    openRegistrationModal();
+    return;
+  }
+  if (!getActiveSystem()) {
+    showToast('יש לחבר מערכת תחילה');
+    return;
+  }
+
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) recordedChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      clearInterval(recInterval);
+      stream.getTracks().forEach(t => t.stop());
+      $('micBtn').classList.remove('recording');
+      $('recTimer').style.display = 'none';
+      $('placeholderText').style.display = 'block';
+
+      recordedBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+      enterPreviewMode(recordedBlob);
+    };
+
+    mediaRecorder.start();
+    $('micBtn').classList.add('recording');
+    $('placeholderText').style.display = 'none';
+    $('recTimer').style.display = 'flex';
+    recSeconds = 0;
+    $('recTimerText').textContent = '00:00';
+
+    recInterval = setInterval(() => {
+      recSeconds++;
+      $('recTimerText').textContent = formatDuration(recSeconds, true);
+    }, 1000);
+  } catch (err) {
+    showToast('לא ניתן לגשת למיקרופון: ' + err.message);
+  }
+};
+
+$('uploadBtn').onclick = () => {
+  if (needsRegistrationNow()) {
+    openRegistrationModal();
+    return;
+  }
+  $('fileInput').click();
+};
+
+$('fileInput').onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  recordedBlob = file;
+  enterPreviewMode(file);
+  e.target.value = '';
+};
+
+function enterPreviewMode(blob) {
+  stopCurrentPlayback();
+  const url = URL.createObjectURL(blob);
+  previewAudio.src = url;
+  previewAudio.playbackRate = playbackRate;
+  $('previewSpeedBtn').textContent = formatSpeedLabel(playbackRate);
+  $('previewSpeedBtn').classList.toggle('boosted', playbackRate > 1);
+  $('bottombar').classList.add('preview-mode');
+  $('previewProgressFill').style.width = '0%';
+  $('previewTimeLabel').textContent = '0:00';
+}
+
+function exitPreviewMode() {
+  previewAudio.pause();
+  recordedBlob = null;
+  $('bottombar').classList.remove('preview-mode');
+}
+
+$('previewCancelBtn').onclick = exitPreviewMode;
+$('previewSpeedBtn').onclick = cyclePlaybackSpeed;
+
+$('previewPlayBtn').onclick = () => {
+  if (previewAudio.paused) {
+    previewAudio.playbackRate = playbackRate;
+    previewAudio.play();
+    $('previewPlayBtn').innerHTML = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+  } else {
+    previewAudio.pause();
+    $('previewPlayBtn').innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  }
+};
+
+previewAudio.ontimeupdate = () => {
+  if (!previewAudio.duration) return;
+  const pct = (previewAudio.currentTime / previewAudio.duration) * 100;
+  $('previewProgressFill').style.width = pct + '%';
+  $('previewTimeLabel').textContent = formatDuration(Math.floor(previewAudio.currentTime));
+};
+
+previewAudio.onended = () => {
+  $('previewPlayBtn').innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  $('previewProgressFill').style.width = '0%';
+};
+
+$('previewSendBtn').onclick = async () => {
+  if (needsRegistrationNow()) {
+    openRegistrationModal();
+    return;
+  }
+
+  const sys = getActiveSystem();
+  if (!sys || !recordedBlob) return;
+
+  const btn = $('previewSendBtn');
+  btn.disabled = true;
+  showToast('מעלה הקלטה חדשה לשלוחה...');
+
+  try {
+    const fileName = buildNextSequentialFileName(currentRecordings);
+    const destPath = `ivr2:/${sys.ext || '1'}/${fileName}`;
+    const recorderPhone = normalizePhone(registeredPhone);
+    const qquuid = createUploadSessionId();
+    const callerAnnouncement = buildCallerAnnouncementText(recorderPhone);
+
+    if (recorderPhone) {
+      uploadedMeta[`${sys.id}_${fileName}`] = {
+        Phone: recorderPhone,
+        phone: recorderPhone,
+        callerId: recorderPhone,
+        callerAnnouncement
+      };
+      saveUploadedMeta();
+    }
+
+    const fd = new FormData();
+    fd.append('token', sys.token);
+    fd.append('path', destPath);
+    fd.append('qquuid', qquuid);
+    fd.append('fileUpload', recordedBlob, fileName);
+    fd.append('convertAudio', '1');
+
+    const uploadRes = await fetch(YEMOT_API + 'UploadFile', {
+      method: 'POST',
+      body: fd
+    });
+    const uploadData = await uploadRes.json();
+
+    if (uploadData.responseStatus !== 'OK') {
+      throw new Error(uploadData.message || 'שגיאה בהעלאת ההקלטה');
+    }
+
+    const returnedName = String(uploadData.path || '').split('/').pop() || fileName;
+    let metadataUploadError = '';
+    if (recorderPhone) {
+      try {
+        await uploadRecordingMetadata(sys, returnedName, recorderPhone);
+      } catch (metadataError) {
+        metadataUploadError = metadataError.message || 'שגיאה בהעלאת קובץ הפרטים';
+        console.error('UploadTextFile failed:', metadataError);
+      }
+
+      const metaEntry = {
+        Phone: recorderPhone,
+        phone: recorderPhone,
+        callerId: recorderPhone,
+        callerAnnouncement
+      };
+      uploadedMeta[`${sys.id}_${returnedName}`] = metaEntry;
+      uploadedMeta[`${sys.id}_${fileName}`] = metaEntry;
+      saveUploadedMeta();
+    }
+
+    if (metadataUploadError) {
+      showToast(`קובץ השמע ${returnedName} עלה, אך קובץ הפרטים נכשל: ${metadataUploadError}`);
+    } else if (recorderPhone) {
+      showToast(`ההקלטה וקובץ הפרטים עלו בהצלחה (${returnedName})`);
+    } else {
+      showToast(`ההקלטה עלתה כקובץ ${returnedName}!`);
+    }
+
+    if (sys.tzintukList && sys.tzintukList.trim() !== '') {
+      showToast(`שולח צינתוק לרשימה ${sys.tzintukList}...`);
+      await callYemot('RunTzintuk', {
+        phones: `tzintuk:${sys.tzintukList.trim()}`
+      });
+      showToast('הצינתוק נשלח בהצלחה!');
+    }
+
+    exitPreviewMode();
+    await loadMessages();
+
+    if (recorderPhone) {
+      const targetFile = currentRecordings.find(f => f.name === returnedName || f.name === fileName);
+      if (targetFile) {
+        injectRecorderPhoneToFile(targetFile, sys.id, recorderPhone);
+        renderMessages(currentRecordings);
+      }
+    }
+  } catch (err) {
+    showToast('שגיאה: ' + err.message);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+function openCtxMenu(x, y, file) {
+  contextTargetFile = file;
+  const menu = $('ctxMenu');
+  menu.style.left = Math.min(x, window.innerWidth - 200) + 'px';
+  menu.style.top = Math.min(y, window.innerHeight - 60) + 'px';
+  menu.classList.add('open');
+}
+
+document.addEventListener('click', () => $('ctxMenu').classList.remove('open'));
+
+$('ctxDeleteBtn').onclick = async () => {
+  const sys = getActiveSystem();
+  if (!sys || !contextTargetFile) return;
+
+  const targetPhone = extractPhoneFromFileDetails(contextTargetFile, sys.id);
+  if (!registeredPhone || targetPhone !== registeredPhone) {
+    showToast('אין הרשאה למחוק הודעה של מספר אחר');
+    return;
+  }
+
+  try {
+    await callYemot('FileAction', {
+      action: 'delete',
+      what: `ivr2:/${sys.ext || '1'}/${contextTargetFile.name}`
+    });
+    delete uploadedMeta[`${sys.id}_${contextTargetFile.name}`];
+    saveUploadedMeta();
+    showToast('ההודעה שלך נמחקה');
+    loadMessages();
+  } catch (err) {
+    showToast('שגיאה במחיקה: ' + err.message);
+  }
+};
+
+function openSettings(sysId = null) {
+  editingSystemId = sysId;
+  const sys = systems.find(s => s.id === sysId);
+
+  $('settingsTitle').textContent = sys ? 'עריכת מערכת' : 'חיבור למערכת ימות המשיח';
+  $('labelInput').value = sys ? (sys.label || '') : '';
+  $('tokenInput').value = sys ? (sys.token || '') : '';
+  $('extInput').value = sys ? (sys.ext || '1') : '1';
+  $('tzintukListInput').value = sys ? (sys.tzintukList || '') : '';
+  $('speechApiKeyInput').value = sys ? (sys.groqKey || '') : '';
+  $('sharePassInput').value = sys ? (sys.sharePass || '') : '';
+  $('sheetsUrlInput').value = sys ? (sys.sheetsUrl || '') : '';
+  $('sheetsStatusLabel').textContent = (sys && sys.sheetsUrl)
+    ? 'מוגדר קישור לגיליון מורשים'
+    : 'לא הוגדר גיליון מורשים';
+  $('themeInput').value = localStorage.getItem('yemot_theme') || 'auto';
+  $('deleteSystemBtn').style.display = sys ? 'inline-block' : 'none';
+
+  $('settingsOverlay').classList.add('open');
+}
+
+$('settingsBtn').onclick = () => openSettings(activeId);
+$('homeAddBtn').onclick = () => openSettings(null);
+$('addAnotherSystemBtn').onclick = () => openSettings(null);
+$('closeSettingsBtn').onclick = () => $('settingsOverlay').classList.remove('open');
+$('settingsCloseX').onclick = () => $('settingsOverlay').classList.remove('open');
+
+$('saveSettingsBtn').onclick = () => {
+  const token = $('tokenInput').value.trim();
+  if (!token.includes(':')) {
+    showToast('יש להזין מספר מערכת וסיסמה בפורמט: 0771234567:1234');
+    return;
+  }
+
+  const theme = $('themeInput').value;
+  localStorage.setItem('yemot_theme', theme);
+  if (theme === 'auto') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = theme;
+
+  const payload = {
+    id: editingSystemId || 'sys_' + Date.now(),
+    label: $('labelInput').value.trim(),
+    token: token,
+    ext: $('extInput').value.trim() || '1',
+    tzintukList: $('tzintukListInput').value.trim(),
+    groqKey: $('speechApiKeyInput').value.trim(),
+    sharePass: $('sharePassInput').value.trim(),
+    sheetsUrl: $('sheetsUrlInput').value.trim()
+  };
+
+  if (editingSystemId) {
+    const idx = systems.findIndex(s => s.id === editingSystemId);
+    if (idx !== -1) systems[idx] = { ...systems[idx], ...payload };
+  } else {
+    systems.push(payload);
+  }
+
+  activeId = payload.id;
+  saveSystems();
+  $('settingsOverlay').classList.remove('open');
+  renderSidebar();
+  if (needsRegistrationNow()) {
+    openRegistrationModal();
+  } else {
+    loadMessages();
+  }
+};
+
+$('deleteSystemBtn').onclick = () => {
+  if (!editingSystemId) return;
+  systems = systems.filter(s => s.id !== editingSystemId);
+  if (activeId === editingSystemId) {
+    activeId = systems[0]?.id || null;
+  }
+  saveSystems();
+  $('settingsOverlay').classList.remove('open');
+  renderSidebar();
+  loadMessages();
+};
+
+$('contactsBtn').onclick = () => {
+  renderContactsList();
+  $('contactsOverlay').classList.add('open');
+};
+$('closeContactsBtn').onclick = () => $('contactsOverlay').classList.remove('open');
+$('contactsCloseX').onclick = () => $('contactsOverlay').classList.remove('open');
+
+$('saveNewContactBtn').onclick = () => {
+  const name = $('newContactName').value.trim();
+  const phone = normalizePhone($('newContactPhone').value);
+  if (!name || !phone) return;
+  contacts[phone] = name;
+  localStorage.setItem('yemot_contacts', JSON.stringify(contacts));
+  $('newContactName').value = '';
+  $('newContactPhone').value = '';
+  renderContactsList();
+  renderMessages(currentRecordings);
+};
+
+function renderContactsList() {
+  const el = $('contactsList');
+  el.innerHTML = '';
+  for (const [phone, name] of Object.entries(contacts)) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; justify-content:space-between; padding:8px 4px; border-bottom:1px solid var(--border);';
+    row.innerHTML = `<span><b>${escapeHtml(name)}</b> (${escapeHtml(phone)})</span>`;
+    const delBtn = document.createElement('button');
+    delBtn.className = 'linklike danger';
+    delBtn.textContent = 'הסר';
+    delBtn.onclick = () => {
+      delete contacts[phone];
+      localStorage.setItem('yemot_contacts', JSON.stringify(contacts));
+      renderContactsList();
+      renderMessages(currentRecordings);
+    };
+    row.appendChild(delBtn);
+    el.appendChild(row);
+  }
+}
+
+$('searchBtn').onclick = () => {
+  $('searchBar').hidden = false;
+  $('searchInput').focus();
+};
+$('searchCloseBtn').onclick = () => {
+  $('searchBar').hidden = true;
+  $('searchInput').value = '';
+  renderMessages(currentRecordings);
+};
+$('searchInput').oninput = () => renderMessages(currentRecordings);
+$('refreshBtn').onclick = loadMessages;
+$('backHomeBtn').onclick = () => $('sidebar').classList.remove('hidden-mobile');
+
+function formatDuration(sec, padMin = false) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${padMin ? String(m).padStart(2, '0') : m}:${String(s).padStart(2, '0')}`;
+}
+
+function formatDayLabel(date) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffDays = Math.round((today - target) / 86400000);
+
+  if (diffDays === 0) return 'היום';
+  if (diffDays === 1) return 'אתמול';
+  if (diffDays < 7) {
+    const days = ['יום ראשון', 'יום שני', 'יום שלישי', 'יום רביעי', 'יום חמישי', 'יום שישי', 'שבת'];
+    return days[date.getDay()];
+  }
+  return date.toLocaleDateString('he-IL');
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m]));
+}
+
+checkIncomingShareLink();
+renderSidebar();
+updateRegistrationHeader();
+
+if (needsRegistrationNow()) {
+  openRegistrationModal();
+} else if (systems.length > 0) {
+  loadMessages();
+} else {
+  openSettings(null);
+}
+</script>
+</body>
+</html>
